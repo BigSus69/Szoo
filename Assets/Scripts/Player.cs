@@ -1,45 +1,41 @@
-using System.Collections;
-using System.Collections.Generic;
-using Lesson_6.Animals;
 using UnityEngine;
 
-namespace Lesson_6
+public class Player : MonoBehaviour
 {
-    public class Player : MonoBehaviour
+    public float movementSpeed = 10f;
+    public float rotationSpeed = 100f;
+    public float maxVerticalAngle = 80f;
+    public float minVerticalAngle = -80f;
+    
+    private float verticalRotation = 0f;
+    
+    void Start()
     {
-        public FriendlyAnimal SelectedAnimal = null;
+        // Lock cursor to center of screen
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
 
-        //Check if the mouse is over an animal and if so, select it and move it
-        protected void Update()
-        {
-            if (Input.GetMouseButton(0))
-            {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
-                if (Physics.Raycast(ray, out hit))
-                {
-                    if (hit.collider != null)
-                    {
-                        if (hit.transform.GetComponent<FriendlyAnimal>() != null)
-                        {
-                            SelectedAnimal = hit.transform.GetComponent<FriendlyAnimal>();
-                        }
-                    }
-                }
-            }
-            else
-            {
-                SelectedAnimal = null;
-            }
 
-            if (SelectedAnimal != null)
-            {
-                Vector3 input = Input.mousePosition;
-                input.z = Camera.main.transform.position.y;
-                Vector3 worldPoint = Camera.main.ScreenToWorldPoint(input);
-                Vector3 dragLocation = new Vector3(worldPoint.x, SelectedAnimal.transform.position.y, worldPoint.z);
-                SelectedAnimal.transform.position = dragLocation;
-            }
-        }
+    void Update()
+    {
+        // Get input from arrow keys
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+        
+        // Move camera based on input
+        Vector3 movement = new Vector3(horizontalInput, 0f, verticalInput) * movementSpeed * Time.deltaTime;
+        transform.Translate(movement, Space.Self);
+        
+        // Get input from mouse movement
+        float horizontalMouse = Input.GetAxis("Mouse X");
+        
+        // Rotate camera based on input
+        float rotationAmount = horizontalMouse * rotationSpeed * Time.deltaTime;
+        transform.Rotate(Vector3.up, rotationAmount, Space.Self);
+
+        
+        // Apply vertical rotation to camera
+        transform.localEulerAngles = new Vector3(verticalRotation, transform.localEulerAngles.y, transform.localEulerAngles.z);
     }
 }
